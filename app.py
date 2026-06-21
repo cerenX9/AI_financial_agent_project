@@ -1,77 +1,64 @@
 import os
 import streamlit as st
-from crewai import Crew, Process
+import yfinance as yf
 from core.agents import FinancialCrewAgents
-from core.tasks import FinancialCrewTasks
 
-# Sayfa Konfigürasyonu
 st.set_page_config(page_title="Agentic AI: Finansal Analizör", page_icon="📉", layout="wide")
 
 st.title("🤖 Agentic AI: Otonom Finansal Analizör ve Yatırım Ajanı")
-st.caption("CrewAI ve Gemini Pro ile Güçlendirilmiş Çoklu Yapay Zeka Mürettebatı")
+st.caption("Doğrudan Gemini Pro Altyapısı ile Güçlendirilmiş Otonom Sistem")
 
-# Sidebar - Güvenli API Anahtarı ve Input Yönetimi
 with st.sidebar:
     st.header("🔑 Güvenlik & Konfigürasyon")
-    
-    # Kullanıcıdan API key'leri alıyoruz (Eğer sistemde yüklü değilse)
     gemini_key = st.text_input("Google Gemini API Key", type="password", value=os.getenv("GEMINI_API_KEY", ""))
-    serper_key = st.text_input("Serper (Google Search) API Key", type="password", value=os.getenv("SERPER_API_KEY", ""))
-    
     st.markdown("---")
-    st.markdown("### 💡 Nasıl Çalışır?")
-    st.write("1. **Araştırmacı Ajan** internete çıkıp haberleri tarar.")
-    st.write("2. **Analist Ajan** Yahoo Finance'ten bilançoyu inceler.")
-    st.write("3. **Stratejist Ajan** verileri birleştirip Türkçe rapor üretir.")
+    st.markdown("### 💡 Sistem Nasıl Çalışıyor?")
+    st.write("Sanal ajanlar sırayla birbirini besleyerek otonom analiz üretir.")
 
-# API Key Kontrolü ve Çevre Değişkenlerine Enjekte Edilmesi
-if gemini_key and serper_key:
+if gemini_key:
     os.environ["GEMINI_API_KEY"] = gemini_key
-    os.environ["SERPER_API_KEY"] = serper_key
+    st.success("Gemini API Anahtarı Tanımlandı! ✅")
     
-    st.success("API Anahtarları Başarıyla Tanımlandı! Sistem Analize Hazır. ✅")
-    
-    # Kullanıcı Giriş Alanı
     st.subheader("📊 Analiz Edilecek Hisse Senedi")
-    ticker = st.text_input("Hisse Kodunu Giriniz (Örn: Apple için AAPL, Tesla için TSLA, Türk Hava Yolları için THYAO.IS):", "").upper()
+    ticker = st.text_input("Hisse Kodunu Giriniz (Örn: AAPL, TSLA, THYAO.IS):", "").upper()
     
     if st.button("Otonom Analizi Başlat 🚀", use_container_width=True):
         if ticker:
-            with st.spinner(f"🤖 Yapay zeka mürettebatı {ticker} hissesi için toplandı... Analiz ediliyor, lütfen bekleyiniz (Bu işlem 1-2 dakika sürebilir)..."):
-                
+            with st.spinner(f"🤖 Yapay zeka ajanları {ticker} için çalışıyor..."):
                 try:
-                    # 1. Ajan ve Görev Nesnelerini Örnekleme (Instantiation)
-                    agents = FinancialCrewAgents()
-                    tasks = FinancialCrewTasks()
+                    # Yahoo Finance verisini doğrudan çekiyoruz (Hatasız ve hızlı)
+                    stock = yf.Ticker(ticker)
+                    info = stock.info
                     
-                    researcher = agents.market_researcher_agent()
-                    analyst = agents.financial_analyst_agent()
-                    advisor = agents.investment_advisor_agent()
+                    fk = info.get('trailingPE', 'N/A')
+                    fiyat = info.get('currentPrice', 'N/A')
+                    market_cap = info.get('marketCap', 'N/A')
                     
-                    task1 = tasks.research_task(researcher, ticker)
-                    task2 = tasks.analysis_task(analyst, ticker)
-                    task3 = tasks.advice_task(advisor, ticker)
+                    finansal_veri_ozeti = f"Güncel Fiyat: {fiyat}, F/K Oranı: {fk}, Piyasa Değeri: {market_cap}"
                     
-                    # 2. Mürettebatı (Crew) Hiyerarşik / Sıralı Süreçle Ayağa Kaldırma
-                    financial_crew = Crew(
-                        agents=[researcher, analyst, advisor],
-                        tasks=[task1, task2, task3],
-                        process=Process.sequential, # Görevler sırayla birbirini besleyerek akacak
-                        verbose=True
-                    )
+                    # Ajanları ve LLM'i çağırıyoruz
+                    factory = FinancialCrewAgents()
                     
-                    # 3. Süreci Başlatma (Kickoff)
-                    result = financial_crew.kickoff()
+                    # Otonom Akış (Chain) Başlıyor
+                    # 1. Aşama: Araştırmacı Ajan Bilgi Topluyor
+                    prompt_research = f"{ticker} hissesi hakkında güncel piyasa trendlerini ve finansal durumu analiz et. Şu temel verileri kullan: {finansal_veri_ozeti}"
+                    response_research = factory.llm.invoke(prompt_research).content
                     
-                    # 4. Sonuçları Ekrana Yazdırma
+                    # 2. Aşama: Stratejist Ajan Raporu Türkçeleştirip Sonuca Bağlıyor
+                    final_prompt = f"""
+                    Aşağıdaki analiz verilerini al ve kurumsal bir Türkçe ile nihai bir yatırım raporu hazırla.
+                    Raporun sonuna net bir tavsiye (Al/Sat/Tut) ekle.
+                    
+                    Veriler:
+                    {response_research}
+                    """
+                    nihai_rapor = factory.llm.invoke(final_prompt).content
+                    
                     st.success("✨ Analiz Başarıyla Tamamlandı!")
-                    
                     st.markdown("## 📋 Nihai Yatırım Stratejisi Raporu")
-                    st.markdown(result)
+                    st.markdown(nihai_rapor)
                     
                 except Exception as e:
                     st.error(f"Analiz sırasında bir hata oluştu: {str(e)}")
-        else:
-            st.warning("Lütfen geçerli bir hisse senedi kodu giriniz.")
 else:
-    st.info("⚠️ Uygulamayı başlatmak için lütfen sol taraftaki panelden Gemini ve Serper API anahtarlarınızı giriniz.")
+    st.info("⚠️ Uygulamayı başlatmak için lütfen sol taraftaki panelden Gemini API anahtarınızı giriniz.")
