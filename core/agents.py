@@ -1,14 +1,11 @@
 import os
-from langchain_google_genai import ChatGoogleGenerativeAI
+from google import genai
 
 class FinancialCrewAgents:
     def __init__(self):
-        # Model ismini Google'ın tam ve güncel formatına (models/gemini-1.5-pro) çevirdik
-        self.llm = ChatGoogleGenerativeAI(
-            model="models/gemini-1.5-pro",
-            google_api_key=os.getenv("GEMINI_API_KEY", ""),
-            temperature=0.2
-        )
+        # LangChain'i aradan çıkarıp doğrudan Google'ın resmi istemcisini (Client) kuruyoruz
+        api_key = os.getenv("GEMINI_API_KEY", "")
+        self.client = genai.Client(api_key=api_key)
 
     def market_researcher_agent(self):
         return {

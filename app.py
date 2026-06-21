@@ -6,7 +6,7 @@ from core.agents import FinancialCrewAgents
 st.set_page_config(page_title="Agentic AI: Finansal Analizör", page_icon="📉", layout="wide")
 
 st.title("🤖 Agentic AI: Otonom Finansal Analizör ve Yatırım Ajanı")
-st.caption("Doğrudan Gemini Pro Altyapısı ile Güçlendirilmiş Otonom Sistem")
+st.caption("Doğrudan Google GenAI Resmi Altyapısı ile Güçlendirilmiş Otonom Sistem")
 
 with st.sidebar:
     st.header("🔑 Güvenlik & Konfigürasyon")
@@ -26,7 +26,7 @@ if gemini_key:
         if ticker:
             with st.spinner(f"🤖 Yapay zeka ajanları {ticker} için çalışıyor..."):
                 try:
-                    # Yahoo Finance verisini doğrudan çekiyoruz (Hatasız ve hızlı)
+                    # 1. Aşama: Yahoo Finance verisini çekiyoruz
                     stock = yf.Ticker(ticker)
                     info = stock.info
                     
@@ -36,15 +36,18 @@ if gemini_key:
                     
                     finansal_veri_ozeti = f"Güncel Fiyat: {fiyat}, F/K Oranı: {fk}, Piyasa Değeri: {market_cap}"
                     
-                    # Ajanları ve LLM'i çağırıyoruz
+                    # 2. Aşama: Ajan fabrikamızı çağırıyoruz
                     factory = FinancialCrewAgents()
                     
-                    # Otonom Akış (Chain) Başlıyor
-                    # 1. Aşama: Araştırmacı Ajan Bilgi Topluyor
+                    # 3. Aşama: Araştırmacı Ajan Bilgi Topluyor
                     prompt_research = f"{ticker} hissesi hakkında güncel piyasa trendlerini ve finansal durumu analiz et. Şu temel verileri kullan: {finansal_veri_ozeti}"
-                    response_research = factory.llm.invoke(prompt_research).content
                     
-                    # 2. Aşama: Stratejist Ajan Raporu Türkçeleştirip Sonuca Bağlıyor
+                    response_research = factory.client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=prompt_research
+                    ).text
+                    
+                    # 4. Aşama: Stratejist Ajan Raporu Türkçeleştirip Sonuca Bağlıyor
                     final_prompt = f"""
                     Aşağıdaki analiz verilerini al ve kurumsal bir Türkçe ile nihai bir yatırım raporu hazırla.
                     Raporun sonuna net bir tavsiye (Al/Sat/Tut) ekle.
@@ -52,10 +55,14 @@ if gemini_key:
                     Veriler:
                     {response_research}
                     """
-                    nihai_rapor = factory.llm.invoke(final_prompt).content
+                    
+                    nihai_rapor = factory.client.models.generate_content(
+                        model='gemini-2.5-flash',
+                        contents=final_prompt
+                    ).text
                     
                     st.success("✨ Analiz Başarıyla Tamamlandı!")
-                    st.markdown("## 📋 Nihai Yatırım Stratejisi Raporu")
+                    st.markdown("## 📋 Nihai Yatırım Sratejisi Raporu")
                     st.markdown(nihai_rapor)
                     
                 except Exception as e:
