@@ -4,6 +4,17 @@ Bu proje, geleneksel LangChain veya CrewAI gibi ağır ve bağımlılık yaratan
 
 ---
 
+🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
+
+# LİNK'E TIKLA, UYGULAMAYA GİR!🤖
+
+https://aifinancialagentproject-srqdjgxyufjwrittcy7gwy.streamlit.app/
+
+
+🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀
+
+---
+
 ## 🚀 Öne Çıkan Özellikler
 
 * **Resmi Google GenAI Entegrasyonu:** `gemini-2.5-flash` modeliyle ultra hızlı, kararlı ve düşük maliyetli API çağrıları.
