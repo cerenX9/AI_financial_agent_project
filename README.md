@@ -34,3 +34,38 @@ AI_financial_agent_project/
 ├── app.py              # Streamlit Web Arayüzü
 ├── requirements.txt    # Bağımlılık listesi
 └── .gitignore          # Güvenlik (API Key ve .venv gizleme)
+
+
+
+🛠️ Kurulum ve Çalıştırma
+1. Depoyu Klonlayın veya İndirin
+Bash
+git clone [https://github.com/KULLANICI_ADIN/AI_financial_agent_project.git](https://github.com/KULLANICI_ADIN/AI_financial_agent_project.git)
+cd AI_financial_agent_project
+2. Sanal Ortam Oluşturun ve Aktif Edin
+Bash
+python -m venv .venv
+# Windows için:
+.venv\Scripts\activate
+# Mac/Linux için:
+source .venv/bin/activate
+3. Bağımlılıkları Yükleyin
+Bash
+pip install -r requirements.txt
+4. Testleri Koşturun (Opsiyonel)
+Projenin sorunsuz çalıştığını doğrulamak için test suitini çalıştırabilirsiniz:
+
+Bash
+python -m pytest tests/
+5. Uygulamayı Başlatın
+Bash
+python -m streamlit run app.py
+💡 Nasıl Kullanılır?
+Uygulama açıldığında sol paneldeki güvenli alana Google Gemini API Key'inizi girin.
+
+Analiz etmek istediğiniz hissenin sembolünü yazın (Örn: TSLA).
+
+"Otonom Analizi Başlat 🚀" butonuna basın. Ajanlar arka planda zincirleme reaksiyon başlatarak nihai raporu ekrana dökecektir.
+
+⚖️ Yasal Uyarı (Disclaimer)
+Bu proje tamamen eğitim ve portfolyo amacıyla geliştirilmiştir. Ajanlar tarafından üretilen hiçbir analiz, rapor veya "Al/Sat/Tut" tavsiyesi yatırım danışmanlığı kapsamında değildir.
