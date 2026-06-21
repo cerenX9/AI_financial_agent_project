@@ -3,9 +3,9 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 
 class FinancialCrewAgents:
     def __init__(self):
-        # Gemini'ı doğrudan bağlıyoruz, arkadaki ağır kütüphanelere ihtiyacımız yok
+        # Model ismini Google'ın tam ve güncel formatına (models/gemini-1.5-pro) çevirdik
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-1.5-pro",
+            model="models/gemini-1.5-pro",
             google_api_key=os.getenv("GEMINI_API_KEY", ""),
             temperature=0.2
         )
